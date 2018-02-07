@@ -38,15 +38,15 @@ class VerticaDate
     @year  = +year
     @month = +month
     @day   = +day
-    
+
   toDate:    -> new Date(@year, @month - 1, @day)
   toString:  -> "#{padWithZeroes(@year, 4)}-#{padWithZeroes(@month, 2)}-#{padWithZeroes(@day, 2)}"
   sqlQuoted: -> "'#{@toString()}'::date"
   toJSON:    -> @toString()
 
-  
+
 VerticaDate.fromStringBuffer = (buffer) ->
-  if matches = buffer.toString('ascii').match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if matches = buffer.toString('ascii').match(/^(\d{1,})-(\d{2})-(\d{2})$/)
     new VerticaDate(matches[1], matches[2], matches[3])
   else
     throw new Error('Invalid date format!')
@@ -84,11 +84,11 @@ exports.Time = VerticaTime
 ################################################
 
 # not implemented as a separate class as of yet
-  
+
 VerticaTimestamp =
 
   fromStringBuffer: (buffer) ->
-    timestampRegexp = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})(\.\d{1,})?(?:([\+\-])(\d{2})(?:\:(\d{2}))?)?$/
+    timestampRegexp = /^(\d{1,})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})(\.\d{1,})?(?:([\+\-])(\d{2})(?:\:(\d{2}))?)?$/
     if matches = buffer.toString('ascii').match(timestampRegexp)
       utc = Date.UTC(+matches[1], +matches[2] - 1, +matches[3], +matches[4], +matches[5], +matches[6], Math.round(+matches[7] * 1000) || 0)
 
@@ -128,21 +128,21 @@ class VerticaInterval
     @hours = +hours if hours?
     @minutes = +minutes if minutes?
     @seconds = +seconds if seconds?
-    
+
   inDays: ->
     days = 0
     days += @days if @days
-    days += @hours / 24 if @hours 
+    days += @hours / 24 if @hours
     days += @minutes / (24 * 60) if @minutes
     days += @seconds / (24 * 60 / 60) if @seconds
-    
+
   inSeconds: ->
     seconds = 0
     seconds += @days * 60 * 60 * 24 if @days
-    seconds += @hours * 60 * 60 if @hours 
+    seconds += @hours * 60 * 60 if @hours
     seconds += @minutes * 60 if @minutes
     seconds += @seconds if @seconds
-    
+
   inMilliseconds: ->
     @inSeconds() * 1000
 
@@ -151,7 +151,7 @@ class VerticaInterval
 
   toJSON: ->
     days: @days, hours: @hours, minutes: @minutes, seconds: @seconds
-  
+
   sqlQuoted: ->
     throw new Error('Not yet implemented')
 
